@@ -93,37 +93,73 @@ class graph_traversal
         ta.setWrapStyleWord(true);
         ta.setBorder(new LineBorder(Color.BLACK));
 
+        JLabel err=new JLabel("");
+        err.setBounds(550,395,300,20);
+        err.setForeground(Color.red);
 
         JButton submit=new JButton("Submit");
         submit.setBounds(200,360,150,30);
         submit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Retrieve input data
-                int numberOfNodes = Integer.parseInt(tf.getText());
-                int numberOfEdges = Integer.parseInt(tf1.getText());
-                String graph = Objects.requireNonNull(graphType.getSelectedItem()).toString();
-                String[] edgeInputs = ta.getText().split(",");
-
-                // Create adjacency list
-                Map<Integer, List<Integer>> adjacencyList = new HashMap<>();
-                for (String edge : edgeInputs) {
-                    String[] vertices = edge.split("-");
-                    int vertex1 = Integer.parseInt(vertices[0]);
-                    int vertex2 = Integer.parseInt(vertices[1]);
-                    adjacencyList.computeIfAbsent(vertex1, k -> new ArrayList<>()).add(vertex2);
-                    if (graph.equals("Undirected")) {
-                        adjacencyList.computeIfAbsent(vertex2, k -> new ArrayList<>()).add(vertex1);
+                try {
+                    int numberOfNodes = Integer.parseInt(tf.getText());
+                    int numberOfEdges = Integer.parseInt(tf1.getText());
+                    if (numberOfNodes <= 0 || numberOfEdges < 0) {
+                        err.setText("Enter the correct Input");
+                        return;
                     }
+
+                    String graph = Objects.requireNonNull(graphType.getSelectedItem()).toString();
+                    if (!graph.equals("Directed") && !graph.equals("Undirected")) {
+                        err.setText("Enter the correct Input");
+                        return;
+                    }
+
+                    String[] edgeInputs = ta.getText().split(",");
+                    if (edgeInputs.length != numberOfEdges) {
+                        err.setText("Enter the correct Input");
+                        return;
+                    }
+
+                    for (String edge : edgeInputs) {
+                        String[] vertices = edge.split("-");
+                        if (vertices.length != 2) {
+                            err.setText("Enter the correct Input");
+                            return;
+                        }
+                        int vertex1 = Integer.parseInt(vertices[0]);
+                        int vertex2 = Integer.parseInt(vertices[1]);
+                        if (vertex1 < 0 || vertex1 >= numberOfNodes || vertex2 < 0 || vertex2 >= numberOfNodes) {
+                            err.setText("Enter the correct Input");
+                            return;
+                        }
+                    }
+                    Map<Integer, List<Integer>> adjacencyList = new HashMap<>();
+                    for (String edge : edgeInputs) {
+                        String[] vertices = edge.split("-");
+                        int vertex1 = Integer.parseInt(vertices[0]);
+                        int vertex2 = Integer.parseInt(vertices[1]);
+                        adjacencyList.computeIfAbsent(vertex1, k -> new ArrayList<>()).add(vertex2);
+                        if (graph.equals("Undirected")) {
+                            adjacencyList.computeIfAbsent(vertex2, k -> new ArrayList<>()).add(vertex1);
+                        }
+                    }
+                    if(graph.equals("Directed"))
+                        new directed(s,numberOfNodes, numberOfEdges, graph, adjacencyList);
+                    else new undirected(s,numberOfNodes, numberOfEdges, graph, adjacencyList);
+                } catch (NumberFormatException ex) {
+                    ex.printStackTrace();
+                } catch (NullPointerException ex) {
+                    ex.printStackTrace();
                 }
-                if(graph.equals("Directed"))
-                    new directed(numberOfNodes, numberOfEdges, graph, adjacencyList);
-                else new undirected(numberOfNodes, numberOfEdges, graph, adjacencyList);
             }
         });
 
 
 
+
+        f.add(err);
         f.add(welcome);
         p.add(submit);
         p.add(ta);
