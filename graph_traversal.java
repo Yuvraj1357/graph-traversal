@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 
 class graph_traversal
 {
@@ -67,8 +70,8 @@ class graph_traversal
 
 
         JComboBox<String> graphType = new JComboBox<>();
-        graphType.addItem("Ordered");
-        graphType.addItem("Unordered");
+        graphType.addItem("Directed");
+        graphType.addItem("Undirected");
         graphType.setBounds(350,170,150,25);
 
 
@@ -93,13 +96,32 @@ class graph_traversal
 
         JButton submit=new JButton("Submit");
         submit.setBounds(200,360,150,30);
-//        submit.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                String inputData = input.getText();
-//                new graph_traversal(inputData);
-//            }
-//        });
+        submit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Retrieve input data
+                int numberOfNodes = Integer.parseInt(tf.getText());
+                int numberOfEdges = Integer.parseInt(tf1.getText());
+                String graph = Objects.requireNonNull(graphType.getSelectedItem()).toString();
+                String[] edgeInputs = ta.getText().split(",");
+
+                // Create adjacency list
+                Map<Integer, List<Integer>> adjacencyList = new HashMap<>();
+                for (String edge : edgeInputs) {
+                    String[] vertices = edge.split("-");
+                    int vertex1 = Integer.parseInt(vertices[0]);
+                    int vertex2 = Integer.parseInt(vertices[1]);
+                    adjacencyList.computeIfAbsent(vertex1, k -> new ArrayList<>()).add(vertex2);
+                    if (graph.equals("Undirected")) {
+                        adjacencyList.computeIfAbsent(vertex2, k -> new ArrayList<>()).add(vertex1);
+                    }
+                }
+                if(graph.equals("Directed"))
+                    new directed(numberOfNodes, numberOfEdges, graph, adjacencyList);
+                else new undirected(numberOfNodes, numberOfEdges, graph, adjacencyList);
+            }
+        });
+
 
 
         f.add(welcome);

@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.Map;
 
 class undirected
 {
-    undirected()
+    undirected(int n,int edges, String s, Map<Integer, List<Integer>> adjacencyList)
     {
         JFrame f=new JFrame("Undirected");
 
@@ -43,7 +45,7 @@ class undirected
         undirected.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new directed();
+                new directed(n,edges,s, adjacencyList);
             }
         });
 
